@@ -6,7 +6,7 @@ def parse(filename):
   '''
   # initialize variables
 
-  out = []  
+  out = []
   csvfile = open(filename,'rb')
   fileToRead = csv.reader(csvfile)
 
