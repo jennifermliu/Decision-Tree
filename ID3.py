@@ -1,5 +1,8 @@
+from __future__ import division
 from node import Node
+import numpy as np
 import math
+
 
 def ID3(examples, default):
   '''
@@ -15,15 +18,16 @@ def ID3(examples, default):
   if len(examples) == 0:
       tree = Node(None,{})
       return tree
+  # if non-trivial splits
+  if checkSplit(examples) == False:
+      tree = Node(mode(examples,'Class'),{})
+      return tree
   # if all examples have same classification
   sameclass, label = checkSameClass(examples)
   if sameclass:
       tree = Node(label,{})
       return tree
-  # if non-trivial splits
-  if checkSplit(examples) == False:
-      tree = Node(mode(examples,'Class'),{})
-      return tree
+
 
   # best <- CHOOSE-ATTRIBUTE(examples)
   best = chooseAttribute(examples)
@@ -103,9 +107,44 @@ def mode(examples,attribute):
 
 # return the best attribute to split on
 def chooseAttribute(examples):
-    example = examples[0]
-    for key in example:
-        return key
+    best = None # best attribute to split on
+    lowest = float("inf")
+    pairDict = {} # map attribute name to list of attributeValue/label pairs
+    for example in examples:
+        for key in example:
+            if key != 'Class':
+                if key not in pairDict:
+                    pairDict[key]=[]
+                pairDict[key].append([example[key],example['Class']])
+
+    for attributeName in pairDict:
+        pairList = pairDict[attributeName]
+        attrTolabel = {} # map attribute value to list of labels
+        entropySum = 0 # total entropy of all kinds of attribute values
+        for pair in pairList:
+            if pair[0] not in attrTolabel:
+                attrTolabel[pair[0]]=[]
+            attrTolabel[pair[0]].append(pair[1])
+        for key in attrTolabel:
+            # map label value to its count within this attribute value
+            labelCount = {}
+            totalCount = 0 # total count of examples with this attribute value
+            labelList = attrTolabel[key]
+            for label in labelList:
+                if label not in labelCount:
+                    labelCount[label] = 0
+                labelCount[label] += 1
+                totalCount += 1
+            groupEntropy = 0 # total entropy of all kinds of labels with this attribute value
+            for label in labelCount:
+                count = labelCount[label]
+                entropy = -count/totalCount * np.log2(count/totalCount)
+                groupEntropy += entropy
+            entropySum = totalCount/len(pairDict) * groupEntropy
+        if entropySum < lowest:
+            lowest = entropySum
+            best = attributeName
+    return best
 
 # return dict mapping from attribute value to new examples without this attribute
 def groupExamples(examples,attribute):
