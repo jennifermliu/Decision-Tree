@@ -12,25 +12,30 @@ def ID3(examples, default):
   Any missing attributes are denoted with a value of "?"
   '''
 
-  print examples
+  # print examples
 
   # if examples is empty
   if len(examples) == 0:
       tree = Node(None,{})
+      #print tree.label
       return tree
   # if non-trivial splits
   if checkSplit(examples) == False:
       tree = Node(mode(examples,'Class'),{})
+      #print tree.label
       return tree
   # if all examples have same classification
   sameclass, label = checkSameClass(examples)
   if sameclass:
       tree = Node(label,{})
+      #print tree.label
+      #print tree.children
       return tree
 
 
   # best <- CHOOSE-ATTRIBUTE(examples)
   best = chooseAttribute(examples)
+
   # t <- new tree with root test best
   t = Node(best,{})
   # for each valuei of best:
@@ -38,10 +43,13 @@ def ID3(examples, default):
   for key in exampleDict:
       # examplesi <- {elements of examples with best = valuei}
       newexamples = exampleDict[key]
+    #   print key
+      #print newexamples
       # subtree <- ID3(examplesi, MODE(examples)}
       subtree = ID3(newexamples,mode(examples,'Class'))
       # add branch to t with label valuei and subtree subtree
       (t.children)[key]=subtree
+
 
   return t
 
@@ -65,6 +73,18 @@ def evaluate(node, example):
   Takes in a tree and one example.  Returns the Class value that the tree
   assigns to the example.
   '''
+  # print example
+  # print node.label
+  if node.children == {}:
+      return node.label
+  if node.label in example:
+      value = example[node.label]
+      example.pop(node.label,None)
+     # print example
+      return evaluate(node.children[value],example)
+
+
+
 
 # return true if all examples belong to the same class and return the class value
 def checkSameClass(examples):
