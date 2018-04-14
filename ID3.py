@@ -142,16 +142,17 @@ def evaluate(node, example):
   '''
   # print example
   # print node.label
+  exampleCopy = example
   if node.children == {}:
       return node.label
-  if node.label in example:
-      value = example[node.label]
+  if node.label in exampleCopy:
+      value = exampleCopy[node.label]
       if value not in node.children:
           value = max(node.childrenPosibility)
-      example.pop(node.label,None)
+      exampleCopy.pop(node.label,None)
   else:
       value = max(node.childrenPosibility)
-  return evaluate(node.children[value],example)
+  return evaluate(node.children[value],exampleCopy)
 
 
 
