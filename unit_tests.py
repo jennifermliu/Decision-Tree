@@ -60,6 +60,8 @@ def testPruningOnHouseData(inFile):
   withPruning = []
   withoutPruning = []
   data = parse.parse(inFile)
+  # error = 0
+  # worsecase = 0
   for i in range(100):
     random.shuffle(data)
     train = data[:len(data)/2]
@@ -70,6 +72,7 @@ def testPruningOnHouseData(inFile):
     acc = ID3.test(tree, train)
     print "training accuracy: ",acc
     acc = ID3.test(tree, valid)
+    # validOrig = acc
     print "validation accuracy: ",acc
     acc = ID3.test(tree, test)
     print "test accuracy: ",acc
@@ -78,14 +81,28 @@ def testPruningOnHouseData(inFile):
     acc = ID3.test(tree, train)
     print "pruned tree train accuracy: ",acc
     acc = ID3.test(tree, valid)
+    # validPrun = acc
+    # if validPrun < validOrig:
+    #   error += 1
     print "pruned tree validation accuracy: ",acc
     acc = ID3.test(tree, test)
     print "pruned tree test accuracy: ",acc
+    # testOrig = acc
     withPruning.append(acc)
     tree = ID3.ID3(train+valid, 'democrat')
     acc = ID3.test(tree, test)
+    # testPruning = acc
+    # if testPruning < testOrig:
+    #   worsecase += 1
     print "no pruning test accuracy: ",acc
     withoutPruning.append(acc)
   print withPruning
   print withoutPruning
   print "average with pruning",sum(withPruning)/len(withPruning)," without: ",sum(withoutPruning)/len(withoutPruning)
+  # print error
+  # print worsecase
+
+testID3AndEvaluate()
+testPruning()
+testID3AndTest()
+testPruningOnHouseData("house_votes_84.data")
